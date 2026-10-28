@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python OOP – Interactive Deck</title>
+<style>
+:root{--bg:#f6f5f1;--sf:#fff;--tx:#1d1d1f;--mu:#6b6b70;--ac:#4f46e5;--ok:#15803d;--er:#b91c1c;--cd:#14141c;--ct:#e6e6f0;--bd:#dcdad2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101014;--sf:#1a1a22;--tx:#f0f0f4;--mu:#9a9aa6;--ac:#8b85ff;--ok:#4ade80;--er:#f87171;--cd:#0a0a0f;--ct:#e6e6f0;--bd:#30303c}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+#bar{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:4px;background:var(--ac);transition:width .4s;z-index:5}
+.s{position:absolute;inset:0;padding:28px 6vw 76px;overflow-y:auto;opacity:0;visibility:hidden;transform:translateX(40px);transition:all .45s}
+.s.on{opacity:1;visibility:visible;transform:none}
+.s.out{transform:translateX(-40px)}
+h1{font-size:clamp(2rem,6vw,3.6rem);margin:.2em 0}h2{font-size:clamp(1.4rem,3.2vw,2.1rem);margin:0 0 4px}
+.sub{color:var(--mu);margin:0 0 16px;max-width:70ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+pre{background:var(--cd);color:var(--ct);padding:14px;border-radius:12px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;margin:0}
+.k{color:#c4a1ff}.f{color:#7dd3fc}.c{color:#7c8196}.st{color:#fcd34d}
+.demo{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+button{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 12px;font:600 13px system-ui;cursor:pointer;transition:transform .1s}
+button:active{transform:scale(.95)}button.g{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.log{background:var(--cd);color:var(--ct);border-radius:8px;padding:8px 10px;min-height:90px;max-height:170px;overflow:auto;font:12.5px/1.5 ui-monospace,Menlo,monospace}
+.ln{animation:in .3s}.ln.ok{color:#4ade80}.ln.er{color:#f87171}.ln.in{color:#7dd3fc}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.cards{display:flex;gap:8px;flex-wrap:wrap;min-height:70px}
+.card{background:var(--bg);border:1px solid var(--bd);border-left:4px solid var(--ac);border-radius:8px;padding:6px 10px;font-size:13px;animation:pop .4s}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.node{border:2px solid var(--bd);border-radius:10px;padding:8px 14px;background:var(--bg);font-weight:600;transition:all .3s;cursor:pointer}
+.node.hl{border-color:var(--ac);background:var(--ac);color:#fff;transform:scale(1.08)}
+.node.sm{font-size:13px;font-weight:500}.tag{font-size:12px;padding:2px 8px;border-radius:99px;margin:2px;display:inline-block}
+.tag.inh{background:#4f46e533;color:var(--ac)}.tag.own{background:#15803d33;color:var(--ok)}
+.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--er);display:inline-block;transition:.3s;vertical-align:middle}.dot.on{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+.pills{display:flex;gap:6px}.pill{width:60px;height:44px;border-radius:8px;border:2px solid var(--bd);display:grid;place-items:center;font-size:13px;transition:.3s}
+.pill.cur{border-color:var(--ac);background:var(--ac);color:#fff;transform:translateY(-6px)}.pill.done{opacity:.4}
+.nav{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:0;right:0;display:flex;justify-content:center;align-items:center;gap:12px;z-index:5}
+.nav button{border-radius:99px;width:40px;height:40px;padding:0;font-size:18px}
+#dots{display:flex;gap:6px}#dots i{width:8px;height:8px;border-radius:50%;background:var(--bd);cursor:pointer;transition:.3s}#dots i.on{background:var(--ac);width:22px;border-radius:5px}
+input[type=number]{width:90px;padding:6px;border-radius:6px;border:1px solid var(--bd);background:var(--bg);color:var(--tx)}
+.big{font-size:2rem;font-weight:700}.sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.sum .node{font-weight:500}.mu{color:var(--mu);font-size:13px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div id="bar"></div>
+
+<section class="s"><h1>Object‑Oriented Programming<br>in <span style="color:var(--ac)">Python</span></h1>
+<p class="sub">An interactive tour using real software: shopping carts, payments, bank accounts and file handlers. Use ← → keys, swipe, or the buttons below. Click everything!</p>
+<div class="sum" id="toc"></div></section>
+
+<section class="s"><h2>Class &amp; Object</h2><p class="sub">A class is a blueprint (like a product template in an e‑commerce app). Objects are the real items built from it.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">Product</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(self, name, price):
+        self.name = name      <span class="c"># attribute</span>
+        self.price = price
+    <span class="k">def</span> <span class="f">label</span>(self):         <span class="c"># method</span>
+        <span class="k">return</span> f<span class="st">"{self.name}: ₹{self.price}"</span>
+
+p1 = Product(<span class="st">"Phone"</span>, 19999)
+p2 = Product(<span class="st">"Mouse"</span>, 599)</pre>
+<div class="demo"><div class="row"><button onclick="mk()">Product(…) → new object</button><button class="g" onclick="$('#cards').innerHTML=''">Clear</button></div><div class="cards" id="cards"></div><div class="mu">Same class, different data, each object has its own identity.</div></div></div></section>
+
+<section class="s"><h2>Constructor &amp; Destructor</h2><p class="sub"><code>__init__</code> runs when an object is created; <code>__del__</code> runs just before it’s destroyed (when no references remain).</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">DBConnection</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(self, url):
+        self.url = url
+        print(<span class="st">"connecting…"</span>)
+    <span class="k">def</span> <span class="f">__del__</span>(self):
+        print(<span class="st">"closing connection"</span>)
+
+conn = DBConnection(<span class="st">"shop.db"</span>)
+<span class="k">del</span> conn   <span class="c"># refcount → 0</span></pre>
+<div class="demo"><div class="row"><span class="dot" id="led"></span><b id="cs">no object</b></div><div class="row"><button onclick="cOpen()">conn = DBConnection()</button><button class="g" onclick="cDel()">del conn</button></div><div class="log" id="l3"></div><div class="mu">Tip: prefer context managers for cleanup, as <code>__del__</code> timing isn’t guaranteed.</div></div></div></section>
+
+<section class="s"><h2>Pillar 1 · Encapsulation</h2><p class="sub">Hide internal state; expose a safe interface. Python uses <code>_name</code> (convention) and <code>__name</code> (name mangling).</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">BankAccount</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(self):
+        self.__balance = 1000
+    <span class="k">def</span> <span class="f">withdraw</span>(self, amt):
+        <span class="k">if</span> amt &gt; self.__balance:
+            <span class="k">raise</span> ValueError(<span class="st">"Insufficient"</span>)
+        self.__balance -= amt
+    <span class="nm">@property</span>
+    <span class="k">def</span> <span class="f">balance</span>(self):
+        <span class="k">return</span> self.__balance</pre>
+<div class="demo"><div class="big" id="bal">₹1000</div><div class="row"><input type="number" id="amt" value="300"><button onclick="dep()">deposit</button><button onclick="wd()">withdraw</button></div><div class="row"><button class="g" onclick="peek(0)">acct.__balance</button><button class="g" onclick="peek(1)">acct._BankAccount__balance</button></div><div class="log" id="l4"></div></div></div></section>
+
+<section class="s"><h2>Pillar 2 · Inheritance</h2><p class="sub">A child class reuses and extends a parent. Click a class to see what it inherits vs. defines itself.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">Payment</span>:
+    <span class="k">def</span> <span class="f">validate</span>(self): ...
+    <span class="k">def</span> <span class="f">receipt</span>(self): ...
+
+<span class="k">class</span> <span class="f">CardPayment</span>(Payment):
+    <span class="k">def</span> <span class="f">charge_card</span>(self): ...
+
+<span class="k">class</span> <span class="f">UPIPayment</span>(Payment):
+    <span class="k">def</span> <span class="f">send_upi_request</span>(self): ...</pre>
+<div class="demo"><div class="row"><div class="node" onclick="inh(0,this)">Payment</div><span>→</span><div class="node" onclick="inh(1,this)">CardPayment</div><div class="node" onclick="inh(2,this)">UPIPayment</div></div><div id="inh" style="min-height:70px" class="mu">Pick a class…</div></div></div></section>
+
+<section class="s"><h2>Pillar 3 · Polymorphism</h2><p class="sub">Same method name, different behaviour. The caller doesn’t care which concrete class it’s talking to.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">Card</span>:  <span class="k">def</span> <span class="f">pay</span>(self, a): <span class="k">return</span> <span class="st">"Charged card"</span>
+<span class="k">class</span> <span class="f">UPI</span>:   <span class="k">def</span> <span class="f">pay</span>(self, a): <span class="k">return</span> <span class="st">"UPI collect sent"</span>
+<span class="k">class</span> <span class="f">Wallet</span>:<span class="k">def</span> <span class="f">pay</span>(self, a): <span class="k">return</span> <span class="st">"Wallet debited"</span>
+
+<span class="k">def</span> <span class="f">checkout</span>(method, amount):
+    <span class="k">return</span> method.pay(amount)  <span class="c"># duck typing</span></pre>
+<div class="demo"><div class="row"><button onclick="poly('Card')">checkout(Card())</button><button onclick="poly('UPI')">checkout(UPI())</button><button onclick="poly('Wallet')">checkout(Wallet())</button></div><div class="log" id="l6"></div><div class="mu">Python is duck typed: “if it quacks like a payment method…”</div></div></div></section>
+
+<section class="s"><h2>Pillar 4 · Abstraction</h2><p class="sub">Define <em>what</em> must be done, not <em>how</em>. Abstract base classes (ABC) force subclasses to implement the contract.</p>
+<div class="grid"><pre><span class="k">from</span> abc <span class="k">import</span> ABC, abstractmethod
+
+<span class="k">class</span> <span class="f">Payment</span>(ABC):
+    <span class="nm">@abstractmethod</span>
+    <span class="k">def</span> <span class="f">pay</span>(self, amount): ...
+
+<span class="k">class</span> <span class="f">Razorpay</span>(Payment):
+    <span class="k">pass</span>              <span class="c"># forgot pay()</span>
+<span class="k">class</span> <span class="f">UPI</span>(Payment):
+    <span class="k">def</span> <span class="f">pay</span>(self, amount): ...</pre>
+<div class="demo"><div class="row"><button onclick="ab(0)">Payment()</button><button onclick="ab(1)">Razorpay()</button><button onclick="ab(2)">UPI()</button></div><div class="log" id="l7"></div></div></div></section>
+
+<section class="s"><h2>MRO · Method Resolution Order</h2><p class="sub">With multiple inheritance, Python linearises parents using C3. Flip the base order and watch the lookup path change.</p>
+<div class="grid"><pre id="mcode"></pre>
+<div class="demo"><div class="row"><button onclick="mro(0)">class D(B, C)</button><button class="g" onclick="mro(1)">class D(C, B)</button><button onclick="run()">▶ D().hello()</button></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center"><div></div><div class="node" id="nA">A</div><div class="node" id="nB">B</div><div class="node" id="nC">C</div><div></div><div class="node" id="nD">D</div></div>
+<div class="mu" id="mtxt"></div></div></div></section>
+
+<section class="s"><h2>Dunder (Magic) Methods</h2><p class="sub">Double‑underscore methods let your objects work with Python’s syntax and built‑ins. Click an expression to see which dunder it triggers.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">Money</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(s, v): s.v = v
+    <span class="k">def</span> <span class="f">__add__</span>(s, o): <span class="k">return</span> Money(s.v + o.v)
+    <span class="k">def</span> <span class="f">__eq__</span>(s, o):  <span class="k">return</span> s.v == o.v
+    <span class="k">def</span> <span class="f">__lt__</span>(s, o):  <span class="k">return</span> s.v &lt; o.v
+    <span class="k">def</span> <span class="f">__str__</span>(s):   <span class="k">return</span> f<span class="st">"₹{s.v}"</span>
+    <span class="k">def</span> <span class="f">__repr__</span>(s):  <span class="k">return</span> f<span class="st">"Money({s.v})"</span>
+    <span class="k">def</span> <span class="f">__len__</span>(s):   <span class="k">return</span> 2   <span class="c"># items</span>
+
+a, b = Money(500), Money(250)</pre>
+<div class="demo"><div class="row" id="dn"></div><div class="log" id="l9"></div></div></div></section>
+
+<section class="s"><h2>Instance · Class · Static methods</h2><p class="sub">What does each kind of method receive as its first argument? Click to call them.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">User</span>:
+    count = 0
+    <span class="k">def</span> <span class="f">__init__</span>(self, name):
+        self.name = name; User.count += 1
+
+    <span class="k">def</span> <span class="f">greet</span>(self):               <span class="c"># gets the object</span>
+        <span class="k">return</span> f<span class="st">"Hi {self.name}"</span>
+    <span class="nm">@classmethod</span>
+    <span class="k">def</span> <span class="f">from_email</span>(cls, email):    <span class="c"># gets the class</span>
+        <span class="k">return</span> cls(email.split(<span class="st">"@"</span>)[0])
+    <span class="nm">@staticmethod</span>
+    <span class="k">def</span> <span class="f">is_valid</span>(email):           <span class="c"># gets nothing extra</span>
+        <span class="k">return</span> <span class="st">"@"</span> <span class="k">in</span> email</pre>
+<div class="demo"><div class="row"><button onclick="m(0)">u.greet()</button><button onclick="m(1)">User.from_email("ria@x.com")</button><button onclick="m(2)">User.is_valid("ria@x.com")</button></div><div class="row"><span class="tag inh" id="t0">self → instance</span><span class="tag own" id="t1">cls → class</span><span class="tag" id="t2" style="background:var(--bd)">no implicit arg</span></div><div class="log" id="l10"></div><div class="mu">User.count = <b id="uc">0</b></div></div></div></section>
+
+<section class="s"><h2>Decorators</h2><p class="sub">A decorator wraps a function to add behaviour (logging, auth, timing) without changing its code. Toggle them and run.</p>
+<div class="grid"><pre id="dcode"></pre>
+<div class="demo"><div class="row"><label><input type="checkbox" id="d1" checked onchange="dc()"> @timer</label><label><input type="checkbox" id="d2" checked onchange="dc()"> @login_required</label><label><input type="checkbox" id="d3" checked onchange="dc()"> user logged in</label></div><div class="row"><button onclick="drun()">▶ place_order()</button></div><div class="log" id="l11"></div></div></div></section>
+
+<section class="s"><h2>Iterators</h2><p class="sub">An iterator implements <code>__iter__</code> and <code>__next__</code>. A <code>for</code> loop just calls <code>next()</code> until <code>StopIteration</code>.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">Cart</span>:
+    <span class="k">def</span> <span class="f">__init__</span>(s, items): s.items = items
+    <span class="k">def</span> <span class="f">__iter__</span>(s):
+        s.i = 0; <span class="k">return</span> s
+    <span class="k">def</span> <span class="f">__next__</span>(s):
+        <span class="k">if</span> s.i == len(s.items):
+            <span class="k">raise</span> StopIteration
+        s.i += 1
+        <span class="k">return</span> s.items[s.i - 1]
+
+it = iter(Cart(["Phone","Case","Cable"]))</pre>
+<div class="demo"><div class="pills" id="pl"></div><div class="row"><button onclick="nx()">next(it)</button><button class="g" onclick="rs()">reset</button></div><div class="log" id="l12"></div><div class="mu">Generators (<code>yield</code>) build iterators with far less code.</div></div></div></section>
+
+<section class="s"><h2>Context Managers</h2><p class="sub">The <code>with</code> statement guarantees setup and cleanup via <code>__enter__</code> / <code>__exit__</code>, even when errors happen.</p>
+<div class="grid"><pre><span class="k">class</span> <span class="f">FileSession</span>:
+    <span class="k">def</span> <span class="f">__enter__</span>(self):
+        print(<span class="st">"open file"</span>); <span class="k">return</span> self
+    <span class="k">def</span> <span class="f">__exit__</span>(self, et, ev, tb):
+        print(<span class="st">"close file"</span>)
+        <span class="k">return</span> False   <span class="c"># don’t swallow errors</span>
+
+<span class="k">with</span> FileSession() <span class="k">as</span> f:
+    process(f)</pre>
+<div class="demo"><label><input type="checkbox" id="cerr"> raise an error inside the block</label><div class="row"><button onclick="cm()">▶ run with‑block</button></div><div class="log" id="l13"></div><div class="mu">Also available: <code>@contextmanager</code> from contextlib.</div></div></div></section>
+
+<section class="s"><h2>Recap</h2><p class="sub">Click any card to revisit the topic.</p><div class="sum" id="rc"></div></section>
+
+<div class="nav"><button onclick="go(-1)">‹</button><div id="dots"></div><button onclick="go(1)">›</button></div>
+
+<script>
+const $=s=>document.querySelector(s),S=[...document.querySelectorAll('.s')];
+document.querySelectorAll('.nm').forEach(e=>e.className='f');
+function add(id,t,c){const l=$(id),d=document.createElement('div');d.className='ln '+(c||'');d.textContent=t;l.appendChild(d);l.scrollTop=l.scrollHeight}
+const names=['Intro','Class & Object','Constructor & Destructor','Encapsulation','Inheritance','Polymorphism','Abstraction','MRO','Dunder methods','Class/Static methods','Decorators','Iterators','Context managers','Recap'];
+let cur=0;
+function show(n){n=Math.max(0,Math.min(S.length-1,n));S.forEach((s,i)=>{s.classList.toggle('on',i==n);s.classList.toggle('out',i<n)});cur=n;
+$('#bar').style.width=((n+1)/S.length*100)+'%';document.querySelectorAll('#dots i').forEach((d,i)=>d.classList.toggle('on',i==n));S[n].scrollTop=0}
+function go(d){show(cur+d)}
+names.forEach((n,i)=>{const d=document.createElement('i');d.title=n;d.onclick=()=>show(i);$('#dots').appendChild(d);
+if(i>0&&i<13){['#toc','#rc'].forEach(id=>{const b=document.createElement('div');b.className='node sm';b.textContent=i+'. '+n;b.onclick=()=>show(i);$(id).appendChild(b)})}});
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA/.test(e.target.tagName))return;if(e.key=='ArrowRight'||e.key==' ')go(1);if(e.key=='ArrowLeft')go(-1)});
+let tx=0;addEventListener('touchstart',e=>tx=e.touches[0].clientX);addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>70)go(d<0?1:-1)});
+
+// 1 class/object
+const P=[['Phone',19999],['Mouse',599],['Laptop',54999],['Cable',199],['Watch',8999]];let pc=0;
+function mk(){const [n,p]=P[pc++%P.length],d=document.createElement('div');d.className='card';d.innerHTML=`<b>${n}</b><br>₹${p}<br><span class="mu">id …${Math.floor(Math.random()*9000+1000)}</span>`;$('#cards').appendChild(d)}
+// 2 ctor/dtor
+let conn=false;
+function cOpen(){if(conn)add('#l3','(already open: rebinding calls __del__ on the old object first)','er');conn=true;$('#led').classList.add('on');$('#cs').textContent='conn alive';add('#l3','__init__ → connecting to shop.db…','ok')}
+function cDel(){if(!conn){add('#l3','NameError: conn is not defined','er');return}conn=false;$('#led').classList.remove('on');$('#cs').textContent='no object';add('#l3','__del__ → closing connection','in')}
+// 3 encapsulation
+let bal=1000;const upd=()=>$('#bal').textContent='₹'+bal;
+function dep(){bal+=+$('#amt').value;upd();add('#l4','acct.deposit() ok','ok')}
+function wd(){const a=+$('#amt').value;if(a>bal){add('#l4','ValueError: Insufficient funds','er');$('#bal').classList.remove('shake');void $('#bal').offsetWidth;$('#bal').classList.add('shake')}else{bal-=a;upd();add('#l4','withdraw ok','ok')}}
+function peek(m){m?add('#l4','>>> '+bal+'  (mangled name works, but don’t!)','in'):add('#l4',"AttributeError: 'BankAccount' has no attribute '__balance'",'er')}
+// 4 inheritance
+const IN=[[[],['validate()','receipt()']],[['validate()','receipt()'],['charge_card()']],[['validate()','receipt()'],['send_upi_request()']]];
+function inh(i,el){document.querySelectorAll('.node').forEach(n=>n.classList.remove('hl'));el.classList.add('hl');const [a,b]=IN[i];
+$('#inh').innerHTML=a.map(x=>`<span class="tag inh">${x} ⬆ inherited</span>`).join('')+b.map(x=>`<span class="tag own">${x} own</span>`).join('')}
+// 5 polymorphism
+const PM={Card:'Charged card ending 4242',UPI:'UPI collect request sent',Wallet:'Wallet debited'};
+function poly(k){add('#l6',`checkout(${k}(), 500) → .pay(500)`,'in');add('#l6','   '+PM[k],'ok')}
+// 6 abstraction
+function ab(i){const L='#l7';if(i==0)add(L,"TypeError: Can't instantiate abstract class Payment with abstract method pay",'er');
+if(i==1)add(L,"TypeError: Can't instantiate abstract class Razorpay with abstract method pay",'er');if(i==2)add(L,'UPI() created ✓ contract fulfilled','ok')}
+// 7 MRO
+let ord=0;const M=[['D','B','C','A'],['D','C','B','A']];
+function mro(o){ord=o;const b=o?'C, B':'B, C';$('#mcode').innerHTML=`<span class="k">class</span> <span class="f">A</span>:
+    <span class="k">def</span> <span class="f">hello</span>(s): print(<span class="st">"A"</span>)
+<span class="k">class</span> <span class="f">B</span>(A):
+    <span class="k">def</span> <span class="f">hello</span>(s): print(<span class="st">"B"</span>); super().hello()
+<span class="k">class</span> <span class="f">C</span>(A):
+    <span class="k">def</span> <span class="f">hello</span>(s): print(<span class="st">"C"</span>); super().hello()
+<span class="k">class</span> <span class="f">D</span>(${b}):
+    <span class="k">def</span> <span class="f">hello</span>(s): print(<span class="st">"D"</span>); super().hello()
+
+D.mro()  <span class="c"># [${M[o].join(', ')}, object]</span>`;$('#mtxt').textContent='MRO: '+M[o].join(' → ')+' → object'}
+async function run(){for(const n of M[ord]){const e=$('#n'+n);e.classList.add('hl');await new Promise(r=>setTimeout(r,550));e.classList.remove('hl')}}
+mro(0);
+// 8 dunder
+const DN=[['a + b','__add__','₹750'],['str(a)','__str__','"₹500"'],['repr(a)','__repr__','Money(500)'],['a == b','__eq__','False'],['a < b','__lt__','False'],['len(a)','__len__','2']];
+DN.forEach(([e,d,r])=>{const b=document.createElement('button');b.textContent=e;b.onclick=()=>{add('#l9',e+'  →  calls '+d+'()','in');add('#l9','   = '+r,'ok')};$('#dn').appendChild(b)});
+// 9 methods
+let uc=0;
+function m(i){[0,1,2].forEach(j=>$('#t'+j).style.outline=j==i?'2px solid var(--ac)':'none');
+if(i==0)add('#l10','u.greet() → "Hi Ria"   (self = that user)','ok');
+if(i==1){uc++;$('#uc').textContent=uc;add('#l10','User.from_email(…) → new User("ria")  (cls = User)','ok')}
+if(i==2)add('#l10','User.is_valid(…) → True   (plain utility)','ok')}
+// 10 decorators
+function dc(){const t=$('#d1').checked,l=$('#d2').checked;
+$('#dcode').innerHTML=`<span class="c"># decorator = function that wraps a function</span>
+<span class="k">def</span> <span class="f">timer</span>(fn):
+    <span class="k">def</span> <span class="f">wrapper</span>(*a, **kw):
+        t0 = now(); r = fn(*a, **kw)
+        print(<span class="st">f"took {now()-t0}ms"</span>); <span class="k">return</span> r
+    <span class="k">return</span> wrapper
+
+${t?'<span class="f">@timer</span>\n':''}${l?'<span class="f">@login_required</span>\n':''}<span class="k">def</span> <span class="f">place_order</span>():
+    print(<span class="st">"order placed"</span>)`}
+function drun(){const L='#l11',t=$('#d1').checked,l=$('#d2').checked,ok=$('#d3').checked;add(L,'place_order()','in');if(t)add(L,'⏱ timer: start');
+if(l&&!ok){add(L,'🔒 login_required: PermissionError (function never runs)','er')}else{if(l)add(L,'🔓 login_required: user OK');add(L,'✅ order placed','ok')}if(t)add(L,'⏱ timer: took 12ms')}
+dc();
+// 11 iterators
+const IT=['Phone','Case','Cable'];let ix=0;
+function rs(){ix=0;$('#l12').innerHTML='';$('#pl').innerHTML=IT.map(x=>`<div class="pill">${x}</div>`).join('')}
+function nx(){const p=document.querySelectorAll('.pill');p.forEach(e=>{if(e.classList.contains('cur')){e.classList.remove('cur');e.classList.add('done')}});
+if(ix>=IT.length){add('#l12','StopIteration → for‑loop ends','er');return}p[ix].classList.add('cur');add('#l12',`next(it) → "${IT[ix]}"`,'ok');ix++}
+rs();
+// 12 context manager
+function cm(){const L='#l13',e=$('#cerr').checked;$(L).innerHTML='';add(L,'__enter__ → open file','ok');add(L,'   …block runs','in');
+if(e)add(L,'   💥 ValueError raised inside block','er');add(L,'__exit__ → close file (always runs!)','ok');if(e)add(L,'ValueError propagates (exit returned False)','er')}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms)),K=(k,t)=>[k,t,'ok'],N=(k,t)=>[k,t,'in'],E=(k,t)=>[k,t,'er'];
+function tabs(key,title,sub,data){
+const sec=S.find(s=>s.querySelector('h2')&&s.querySelector('h2').textContent.includes(key));
+sec.querySelector('h2').textContent=title;sec.querySelector('.sub').textContent=sub;
+const g=sec.querySelector('.grid');g.className='';g.innerHTML='';
+const tb=document.createElement('div');tb.className='row';tb.style.marginBottom='12px';
+const body=document.createElement('div');body.className='grid';g.append(tb,body);let tk=0;
+const bs=data.map(([n],i)=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>sel(i);tb.appendChild(b);return b});
+function sel(i){tk++;const [n,code,chips,cap,runs]=data[i];bs.forEach((b,j)=>b.className=j==i?'':'g');body.innerHTML='';
+const pre=document.createElement('pre');pre.textContent=code;
+const d=document.createElement('div');d.className='demo';
+const ch=document.createElement('div');ch.className='row';
+const nodes=chips.map(c=>{const x=document.createElement('div');x.className='node sm';x.textContent=c;ch.appendChild(x);return x});
+const cp=document.createElement('div');cp.className='mu';cp.style.whiteSpace='pre';cp.textContent=cap;
+const rr=document.createElement('div');rr.className='row';const lg=document.createElement('div');lg.className='log';
+runs.forEach(([lb,ls])=>{const b=document.createElement('button');b.textContent=lb;b.onclick=async()=>{const me=++tk;lg.innerHTML='';
+for(const [k,t,c] of ls){if(me!=tk)return;nodes.forEach(x=>x.classList.remove('hl'));if(k>=0&&nodes[k])nodes[k].classList.add('hl');
+const l=document.createElement('div');l.className='ln '+(c||'');l.textContent=t;lg.appendChild(l);await sleep(650)}
+if(me==tk)setTimeout(()=>nodes.forEach(x=>x.classList.remove('hl')),500)};rr.appendChild(b)});
+d.append(ch,cp,rr,lg);body.append(pre,d)}
+sel(0)}
+
+tabs('Inheritance','Pillar 2 · Inheritance: 5 Types','A child class reuses and extends its parent(s). Pick a type, then click run to watch Python search for the method.',[
+['Single',`class BaseModel:
+    def save(self): print("saved to DB")
+
+class User(BaseModel):      # ONE parent
+    def login(self): print("logged in")
+
+u = User()
+u.login(); u.save()`,['BaseModel','User'],'BaseModel\n    ↓\n  User',[['▶ u.login()',[N(1,'look in User…'),K(1,'found User.login()')]],['▶ u.save()',[N(1,'not in User…'),K(0,'found BaseModel.save() → "saved to DB"')]]]],
+['Multilevel',`class Widget:
+    def draw(self): print("draw")
+class Button(Widget):
+    def click(self): print("click")
+class SubmitButton(Button):
+    def submit(self): print("submit")
+
+SubmitButton().draw()   # grandparent method`,['Widget','Button','SubmitButton'],'Widget → Button → SubmitButton\n(a chain: grandparent → parent → child)',[['▶ SubmitButton().draw()',[N(2,'SubmitButton: no draw()'),N(1,'Button: no draw()'),K(0,'Widget.draw() found ✓')]]]],
+['Multiple',`class User:
+    def login(self): ...
+class PermissionsMixin:
+    def can(self, action): ...
+class Loggable:
+    def log(self, msg): ...
+
+class Admin(User, PermissionsMixin, Loggable):
+    pass                    # TWO+ parents`,['User','PermissionsMixin','Loggable','Admin'],'User   PermissionsMixin   Loggable\n   \\         |          /\n          Admin   (mixes all three)',[['▶ admin.login()',[N(3,'Admin: no login()'),K(0,'User.login() ✓')]],['▶ admin.can("delete")',[N(3,'Admin: no can()'),K(1,'PermissionsMixin.can() ✓')]],['▶ admin.log("x")',[N(3,'Admin: no log()'),K(2,'Loggable.log() ✓')]]]],
+['Hierarchical',`class Payment:
+    def receipt(self): print("receipt")
+
+class CardPayment(Payment): ...
+class UPIPayment(Payment): ...
+class NetBanking(Payment): ...      # many children, ONE parent`,['Payment','CardPayment','UPIPayment','NetBanking'],'        Payment\n      /    |     \\\n  Card    UPI   NetBanking',[['▶ every child: receipt()',[N(1,'CardPayment().receipt()'),K(0,'→ Payment.receipt() reused'),N(2,'UPIPayment().receipt()'),K(0,'→ same code, no copy-paste'),N(3,'NetBanking().receipt()'),K(0,'→ same code again')]]]],
+['Hybrid',`class Device:
+    def power_on(self): print("on")
+class Printer(Device):
+    def print_doc(self): ...
+class Scanner(Device):
+    def scan(self): ...
+
+class AllInOne(Printer, Scanner):   # diamond
+    pass`,['Device','Printer','Scanner','AllInOne'],'     Device\n    /      \\\n Printer   Scanner\n    \\      /\n    AllInOne   (multilevel + multiple + hierarchical)',[['▶ AllInOne().power_on()',[N(3,'AllInOne: no power_on()'),N(1,'Printer: no'),N(2,'Scanner: no'),K(0,'Device.power_on() ✓ (found once, thanks to MRO)')]]]]
+]);
+
+tabs('Polymorphism','Pillar 3 · Polymorphism: Types','One interface, many behaviours. Python gives you several flavours. Pick one and try it.',[
+['Duck typing',`class FileLogger:
+    def write(self, m): print("file:", m)
+class ConsoleLogger:
+    def write(self, m): print("console:", m)
+
+def log(sink, msg):      # no common base class!
+    sink.write(msg)`,['FileLogger','ConsoleLogger','int 42'],'"If it has write(), it works."',[['▶ log(FileLogger())',[N(0,'sink.write(msg)'),K(0,'file: hello')]],['▶ log(ConsoleLogger())',[N(1,'sink.write(msg)'),K(1,'console: hello')]],['▶ log(42)',[E(2,"AttributeError: 'int' object has no attribute 'write'")]]]],
+['Overriding',`class Notification:
+    def send(self, m): print("generic:", m)
+class Email(Notification):
+    def send(self, m): print("Email:", m)
+class SMS(Notification):
+    def send(self, m):
+        super().send(m)          # extend parent
+        print("SMS:", m)`,['Notification','Email','SMS'],'Runtime polymorphism: the object’s own class decides.',[['▶ Email().send()',[N(1,'Email overrides send()'),K(1,'Email: hi')]],['▶ SMS().send()',[N(2,'SMS overrides send()'),N(0,'super().send() → parent'),K(0,'generic: hi'),K(2,'SMS: hi')]]]],
+['Operator overloading',`class Money:
+    def __init__(s, v): s.v = v
+    def __add__(s, o):
+        if not isinstance(o, Money):
+            return NotImplemented
+        return Money(s.v + o.v)
+    def __repr__(s): return f"Money({s.v})"
+
+a, b = Money(500), Money(250)`,['a','+','b'],'The same + works on numbers, strings, lists… and your classes.',[['▶ a + b',[N(0,'a.__add__(b)'),K(2,'Money(750)')]],['▶ a + 5',[N(0,'a.__add__(5) → NotImplemented'),E(2,"TypeError: unsupported operand type(s) for +: 'Money' and 'int'")]]]],
+['Overloading (emulated)',`# Python keeps only the LAST def with a name,
+# so use singledispatch / default args.
+from functools import singledispatch
+
+@singledispatch
+def export(data): raise NotImplementedError
+@export.register(list)
+def _(d): return "CSV"
+@export.register(dict)
+def _(d): return "JSON"`,['list','dict','str'],'Dispatch on the type of the first argument.',[['▶ export([1,2])',[K(0,'→ CSV')]],['▶ export({"a":1})',[K(1,'→ JSON')]],['▶ export("x")',[E(2,'NotImplementedError (no handler for str)')]]]],
+['Built-ins',`len("hello")        # str  → __len__
+len([1, 2, 3])    # list → __len__
+len({"a": 1})     # dict → __len__
+
+1 + 2             # int
+"a" + "b"         # str
+[1] + [2]         # list`,['str','list','dict'],'One function or operator, many types.',[['▶ len(x)',[K(0,'len("hello") → 5'),K(1,'len([1,2,3]) → 3'),K(2,'len({"a":1}) → 1')]],['▶ x + y',[K(0,'"a" + "b" → "ab"'),K(1,'[1] + [2] → [1, 2]'),N(-1,'1 + 2 → 3')]]]]
+]);
+
+tabs('Abstraction','Pillar 4 · Abstraction: Ways to Do It','Expose WHAT something does, hide HOW. Python offers several tools for this.',[
+['ABC (contract)',`from abc import ABC, abstractmethod
+
+class Payment(ABC):
+    @abstractmethod
+    def pay(self, amount): ...
+
+class Razorpay(Payment): pass       # forgot pay()
+class UPI(Payment):
+    def pay(self, amount): print("paid", amount)`,['Payment','Razorpay','UPI'],'ABC = a contract that subclasses must fulfil.',[['▶ Payment()',[E(0,"TypeError: Can't instantiate abstract class Payment")]],['▶ Razorpay()',[E(1,"TypeError: abstract method 'pay' not implemented")]],['▶ UPI().pay(500)',[K(2,'paid 500 ✓')]]]],
+['Template method',`class DataPipeline(ABC):
+    def run(self):                 # fixed recipe
+        d = self.extract()
+        d = self.transform(d)
+        self.load(d)
+    @abstractmethod
+    def extract(self): ...
+    @abstractmethod
+    def transform(self, d): ...
+    @abstractmethod
+    def load(self, d): ...`,['extract()','transform()','load()'],'Base class defines the algorithm, subclasses fill in the steps.',[['▶ CsvToDB().run()',[N(0,'CsvToDB.extract() → reads CSV'),N(1,'CsvToDB.transform() → cleans rows'),K(2,'CsvToDB.load() → inserts into DB')]]]],
+['Protocol (interface)',`from typing import Protocol
+
+class Notifier(Protocol):
+    def send(self, msg: str) -> None: ...
+
+class Slack:                       # no inheritance!
+    def send(self, msg): print("slack:", msg)
+class Pager: pass
+
+def alert(n: Notifier): n.send("disk full")`,['Notifier','Slack','Pager'],'Structural typing: matching the shape is enough (checked by mypy/pyright).',[['▶ alert(Slack())',[K(1,'Slack has send() ✓ type-checks')]],['▶ alert(Pager())',[E(2,'type checker: Pager is missing send()')]]]],
+['Hiding complexity',`import requests
+
+r = requests.get("https://api.shop.com/items")
+items = r.json()
+
+# You never write DNS, TCP, TLS or HTTP
+# parsing code. The library abstracts it.`,['DNS','TCP','TLS','HTTP','JSON'],'High-level API on top, messy details hidden below.',[['▶ requests.get(url)',[N(0,'resolve domain to IP'),N(1,'open TCP socket'),N(2,'TLS handshake'),N(3,'send HTTP request, read response'),K(4,'r.json() → Python list')]]]]
+]);
+
+tabs('Encapsulation','Pillar 1 · Encapsulation: In Practice','Bundle data with the methods that guard it. Python relies on conventions, properties and name mangling.',[
+['Access levels',`class Account:
+    def __init__(self):
+        self.owner = "Ria"      # public
+        self._fee = 5           # protected (convention)
+        self.__balance = 1000   # private (mangled)
+
+acct = Account()`,['owner','_fee','__balance'],'public · _protected · __private',[['▶ acct.owner',[K(0,'"Ria" (public: use freely)')]],['▶ acct._fee',[N(1,'5 works, but _ means "internal, please don’t"')]],['▶ acct.__balance',[E(2,"AttributeError: no attribute '__balance'")]],['▶ acct._Account__balance',[N(2,'1000 (mangled name: avoids accidents, not security)')]]]],
+['@property + setter',`class Product:
+    def __init__(self, price):
+        self._price = price
+    @property
+    def price(self): return self._price
+    @price.setter
+    def price(self, v):
+        if v < 0: raise ValueError("negative")
+        self._price = v
+
+p = Product(100)`,['getter','setter'],'Looks like an attribute, behaves like a guarded method.',[['▶ p.price',[N(0,'getter runs → 100')]],['▶ p.price = 499',[N(1,'setter validates…'),K(1,'accepted ✓')]],['▶ p.price = -5',[N(1,'setter validates…'),E(1,'ValueError: negative')]]]],
+['Read-only property',`class Order:
+    def __init__(self, items):
+        self._items = items      # [(name, price)]
+    @property
+    def total(self):             # computed, no setter
+        return sum(p for _, p in self._items)
+
+o = Order([("Phone", 999), ("Case", 199)])`,['_items','total'],'Derived values can never go out of sync.',[['▶ o.total',[N(1,'computed from _items'),K(1,'1198')]],['▶ o.total = 0',[E(1,"AttributeError: property 'total' has no setter")]]]],
+['Hide the internals',`class Cart:
+    def __init__(self): self._items = []
+    def add(self, name):
+        if name in self._items: return False
+        self._items.append(name); return True
+    def __len__(self): return len(self._items)
+
+c = Cart()`,['add()','_items'],'Callers use add(); you can swap list → dict later without breaking them.',[['▶ c.add("Phone") twice',[K(0,'first add → True'),N(0,'second add → False (rule enforced)')]],['▶ c._items.append("Phone")',[E(1,'bypasses the rule → duplicates possible (discouraged)')]]]]
+]);
+show(0);
+</script></body></html>
